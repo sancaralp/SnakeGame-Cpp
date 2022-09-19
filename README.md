@@ -1,0 +1,1 @@
+Open cmake-build-debug\SnakeGame.exe to play

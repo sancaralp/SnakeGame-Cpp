@@ -4,11 +4,17 @@
 #include <chrono>
 #include <thread>
 #include <windows.h>
+#include <fstream>
 
 #define WIDTH 32
 #define HEIGHT 16
 
-using namespace std;
+using std::string;
+using std::vector;
+using std::cout, std::endl, std::cin, std::fstream, std::ios;
+using std::this_thread::sleep_for,std::chrono::milliseconds;
+
+fstream highscore_file;
 
 enum E_rotation{STOP,RIGHT,LEFT,UP,DOWN, END};
 E_rotation rotation;
@@ -119,7 +125,7 @@ void Draw(){
 void Loop(){
     while (!isGameEnded){
         Draw();
-        this_thread::sleep_for(chrono::milliseconds(200));
+        sleep_for(milliseconds(200));
         Input();
         switch (rotation) {
             case STOP:
@@ -145,7 +151,7 @@ void Loop(){
 
 void GameOver(){
     isGameEnded = true;
-    cout<<flush;
+    cout<<std::flush;
     system("CLS");
     cout<<"  _____                         ____                 \n"
           " / ____|                       / __ \\                \n"
@@ -153,7 +159,20 @@ void GameOver(){
           "| | |_ |/ _` | '_ ` _ \\ / _ \\ | |  | \\ \\ / / _ \\ '__|\n"
           "| |__| | (_| | | | | | |  __/ | |__| |\\ V /  __/ |   \n"
           " \\_____|\\__,_|_| |_| |_|\\___|  \\____/  \\_/ \\___|_|   \n"
-          "SCORE: "<<snakeLength-3;
+          <<endl<<" SCORE: "<<snakeLength-3;
+
+    short highscore;
+    highscore_file>>highscore;
+    if(highscore<snakeLength-3) {
+        highscore = snakeLength - 3;
+        highscore_file.close();
+        highscore_file.open("Highscores.txt",ios::out);
+        highscore_file<<std::flush;
+        highscore_file<<highscore;
+    }
+    cout<<endl<<"\033[31m HIGHSCORE:\033[0;37m "<<highscore;
+
+
     while(isGameEnded){
         Input();
         if(rotation==END)
@@ -164,6 +183,7 @@ void GameOver(){
 }
 
 int main(int argc, char** argv) {
+    highscore_file.open("Highscores.txt", ios::in);
     Setup();
     Loop();
     return 0;
